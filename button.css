@@ -1,0 +1,29 @@
+/*
+html body {
+	background: url();
+}
+*/
+.container {
+	width: 320px;
+	height: 170px;
+}
+
+button {
+	float: right;
+	width: 55px;
+	height: 30px;
+}
+#totalMinutes,
+#totalHours,
+#totalSeconds {
+	font-size: 2rem;
+}
+#reviewMinutes,
+#reviewHours,
+#reviewSeconds {
+	font-size: 1.5rem;
+}
+
+.text {
+	font-size: 1rem;
+}
