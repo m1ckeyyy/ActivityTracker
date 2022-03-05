@@ -14,10 +14,7 @@ button {
 	height: 30px;
 }
 #timeReview,
-#timeTotal,
-#totalMinutes,
-#totalHours,
-#totalSeconds {
+#timeTotal {
 	font-size: 2rem;
 }
 #time {
