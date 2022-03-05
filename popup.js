@@ -1,95 +1,66 @@
-// let state = { counterState: null, isLoaded: false, isSaved: false };
 const channel = new BroadcastChannel("CHANNEL_ONE");
 
-let revHr = document.getElementById("reviewHours");
-let revMin = document.getElementById("reviewMinutes");
-let revSec = document.getElementById("reviewSeconds");
-let revHrValue = 0;
-let revMinValue = 0;
-let revSecValue = 0;
-let totalHr = document.getElementById("totalHours");
-let totalMin = document.getElementById("totalMinutes");
-let totalSec = document.getElementById("totalSeconds");
-let totalHrValue = 0;
-let totalMinValue = 0;
-let totalSecValue = 0;
-let time;
-
+const timeReview = document.getElementById("timeReview");
+const timeTotal = document.getElementById("timeTotal");
 const btnStart = document.getElementById("button-start");
-const btnStop = document.getElementById("button-stop");
 const btnReset = document.getElementById("button-reset");
 const btnSubmit = document.getElementById("button-submit");
-
+let revHr, revMin, revSec, totHr, totMin, totSec;
+let time = 0; //ms
+let totalTime = 0;
+let interval;
 btnStart.onclick = function () {
 	channel.postMessage("start");
-	// btnStart.disabled = true;
-	// btnReset.disabled = false;
-};
-btnStop.onclick = function () {
-	channel.postMessage("stop");
-	// btnStart.disabled = false;
+	interval = setInterval(() => (time += 100), 100);
 };
 btnReset.onclick = function () {
 	channel.postMessage("reset");
-	// btnReset.disabled = true;
-	// btnStart.disabled = false;
+	resetTime();
 };
 btnSubmit.onclick = function () {
 	channel.postMessage("submit");
-
-	// btnStart.disabled = false;
+	submitTime();
 };
-
-channel.onmessage = (msg) => {
-	if (typeof msg.data === "number") {
-		time = msg.data;
-		revSecValue = (time / 1000) % 60;
-		revMinValue = (time / 1000 / 60) % 60;
-		revHrValue = time / 1000 / 60 / 60;
-
-		revSec.innerHTML = format(revSecValue);
-		revMin.innerHTML = format(revMinValue);
-		revHr.innerHTML = format(revHrValue);
-	}
-	if (msg.data === "default") {
-		time = 0;
-		revSec.innerHTML = "00";
-		revMin.innerHTML = "00";
-		revHr.innerHTML = "00";
-		revSecValue = 0;
-		revMinValue = 0;
-		revHrValue = 0;
-	}
-	if (msg.data === "submit") {
-		totalSecValue += revSecValue;
-		totalMinValue += revMinValue;
-		totalHrValue += revHrValue;
-		totalSec.innerHTML = format(totalSecValue);
-		totalMin.innerHTML = format(totalMinValue);
-		totalHr.innerHTML = format(totalHrValue);
-		revSecValue = 0;
-		revMinValue = 0;
-		revHrValue = 0;
-
-		revSec.innerHTML = "00";
-		revMin.innerHTML = "00";
-		revHr.innerHTML = "00";
-	}
-};
-
 window.onload = function () {
-	if (revSecValue > 0) {
-		revSec.innerHTML = format(revSecValue);
-		revMin.innerHTML = format(revMinValue);
-		revHr.innerHTML = format(revHrValue);
-	}
-	if (totalSecValue > 0) {
-		totalSec.innerHTML = format(totalSecValue);
-		totalMin.innerHTML = format(totalMinValue);
-		totalHr.innerHTML = format(totalHrValue);
-	}
+	channel.postMessage("onload");
+	channel.onmessage = (msg) => {
+		time = msg.data.time;
+		totalTime = msg.data.totalTime;
+		if (msg.data.running) {
+			interval = setInterval(() => (time += 100), 100);
+		}
+		update();
+	};
 };
-//bc.close();
+setInterval(update, 300);
+
+function update() {
+	revSec = (time / 1000) % 60;
+	revMin = (time / 1000 / 60) % 60;
+	revHr = time / 1000 / 60 / 60;
+	timeReview.innerHTML = `${format(revHr)}:${format(revMin)}:${format(revSec)}`;
+
+	totSec = (totalTime / 1000) % 60;
+	totMin = (totalTime / 1000 / 60) % 60;
+	totHr = totalTime / 1000 / 60 / 60;
+	timeTotal.innerHTML = `${format(totHr)}:${format(totMin)}:${format(totSec)}`;
+}
+
+function resetTime() {
+	clearInterval(interval);
+	time = 0;
+	update();
+}
+function submitTime() {
+	clearInterval(interval);
+	interval = 0;
+	totalTime += time;
+	time = 0;
+	timeReview.innerHTML = "00:00:00";
+	update();
+}
+
+//
 
 function format(value) {
 	return String(Math.trunc(value)).padStart(2, "0");

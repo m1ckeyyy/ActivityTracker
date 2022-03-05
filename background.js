@@ -1,59 +1,52 @@
 const channel = new BroadcastChannel("CHANNEL_ONE");
-
-let actionType;
-
-let time = null;
-let startTime;
-
-let interval;
-let intervalTwo;
-let breakStart = 0;
-let curStop = 0;
-let sumStop = 0;
+let actionType, interval;
+let totalTime = 0;
+const state = {
+	running: false,
+	time: 0,
+	totalTime: 0,
+	interval: null,
+};
 
 channel.onmessage = (msg) => {
 	actionType = msg.data;
-
-	if (actionType === "start") {
-		if (breakStart !== 0) {
-			curStop = new Date() - breakStart;
-		}
-		sumStop += curStop;
-
-		if (time === null) {
-			startTime = new Date();
-		}
-		counter();
-		interval = setInterval(counter, 100);
-		intervalTwo = setInterval(send, 100);
-	}
-	if (actionType === "stop") {
-		breakStart = new Date();
-		clearInterval(interval);
-	}
-	if (actionType === "reset") {
-		clearInterval(interval);
-		time = null;
-		startTime = null;
-		curStop = 0;
-		sumStop = 0;
-		breakStart = 0;
-		channel.postMessage("default");
-	}
-	if (actionType === "submit") {
-		clearInterval(interval);
-		time = null;
-		curStop = 0;
-		sumStop = 0;
-		breakStart = 0;
-		channel.postMessage("submit");
+	switch (actionType) {
+		case "start":
+			interval = setInterval(startTime, 1000);
+			break;
+		case "reset":
+			resetTime();
+			break;
+		case "submit":
+			submitTime();
+			break;
+		case "onload":
+			channel.postMessage({
+				time: state.time,
+				totalTime: state.totalTime,
+				running: state.running,
+			});
+			break;
 	}
 };
 
-function counter() {
-	time = new Date() - startTime - sumStop;
+function startTime() {
+	state.time += 1000;
+	state.running = true;
+	console.log(
+		state.time,
+		new Date().getMinutes() + ":" + new Date().getSeconds()
+	);
 }
-function send() {
-	channel.postMessage(time);
+function resetTime() {
+	clearInterval(interval);
+	state.time = 0;
+	state.running = false;
 }
-//bc.close();
+function submitTime() {
+	clearInterval(interval);
+
+	state.totalTime += state.time;
+	state.time = 0;
+	state.running = false;
+}
