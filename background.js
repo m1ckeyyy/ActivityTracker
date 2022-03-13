@@ -1,18 +1,15 @@
 const channel = new BroadcastChannel("CHANNEL_ONE");
-let actionType, interval;
-let totalTime = 0;
 const state = {
 	running: false,
-	time: 0,
-	totalTime: 0,
+	value: 0,
+	totalValue: 0,
 	interval: null,
 };
 
 channel.onmessage = (msg) => {
-	actionType = msg.data;
-	switch (actionType) {
+	switch (msg.data) {
 		case "start":
-			interval = setInterval(startTime, 1000);
+			state.interval = setInterval(startTime, 1000);
 			break;
 		case "reset":
 			resetTime();
@@ -22,8 +19,8 @@ channel.onmessage = (msg) => {
 			break;
 		case "onload":
 			channel.postMessage({
-				time: state.time,
-				totalTime: state.totalTime,
+				value: state.value,
+				totalValue: state.totalValue,
 				running: state.running,
 			});
 			break;
@@ -31,22 +28,16 @@ channel.onmessage = (msg) => {
 };
 
 function startTime() {
-	state.time += 1000;
+	state.value += 1000;
 	state.running = true;
-	console.log(
-		state.time,
-		new Date().getMinutes() + ":" + new Date().getSeconds()
-	);
+	console.log("time: ", state.value, "totaltime:", state.totalValue);
 }
 function resetTime() {
-	clearInterval(interval);
-	state.time = 0;
+	clearInterval(state.interval);
+	state.value = 0;
 	state.running = false;
 }
 function submitTime() {
-	clearInterval(interval);
-
-	state.totalTime += state.time;
-	state.time = 0;
-	state.running = false;
+	state.totalValue += state.value;
+	resetTime();
 }
