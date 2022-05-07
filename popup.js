@@ -1,5 +1,4 @@
-const channel = new BroadcastChannel("CHANNEL_ONE");
-
+const channelOne = new BroadcastChannel("CHANNEL_ONE");
 const timeReview = document.getElementById("timeReview");
 const timeTotal = document.getElementById("timeTotal");
 const btnStart = document.getElementById("button-start");
@@ -11,15 +10,15 @@ let totalValue = 0;
 let interval;
 
 btnStart.onclick = function () {
-	channel.postMessage("start");
+	channelOne.postMessage("start");
 	interval = setInterval(() => (value += 100), 100);
 };
 btnReset.onclick = function () {
-	channel.postMessage("reset");
+	channelOne.postMessage("reset");
 	resetTime();
 };
 btnSubmit.onclick = function () {
-	channel.postMessage("submit");
+	channelOne.postMessage("submit");
 	submitTime();
 };
 
@@ -55,8 +54,8 @@ function format(val) {
 	return val < 10 ? "0" + Math.trunc(val) : Math.trunc(val);
 }
 window.onload = function () {
-	channel.postMessage("onload");
-	channel.onmessage = (msg) => {
+	channelOne.postMessage("onload");
+	channelOne.onmessage = (msg) => {
 		value = msg.data.value;
 		totalValue = msg.data.totalValue;
 		if (msg.data.running) {
