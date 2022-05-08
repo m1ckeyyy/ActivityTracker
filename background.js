@@ -29,10 +29,9 @@ const state = {
 	value: 0,
 	totalValue: 0,
 	interval: null,
+	queueNamePresent: false,
 };
-channelTwo.onmessage = (msg) => {
-	console.log(msg);
-};
+
 channelOne.onmessage = (msg) => {
 	switch (msg.data) {
 		case "start":
@@ -67,6 +66,9 @@ function resetTime() {
 	state.running = false;
 }
 function submitTime() {
+	//only if queue name is present add review time to total time
+	if (state.queueNamePresent) {
+	}
 	state.totalValue += state.value;
 	resetTime();
 }
@@ -76,18 +78,26 @@ function submitTime() {
 
 chrome.runtime.onMessage.addListener(function (msg) {
 	console.log(`message says: ${msg.msg}`);
-	if (msg.msg === undefined) {
+
+	if (msg.msg === "wake") {
 		//ignore
 		console.log("woken");
 		return;
 	}
-	if (msg.msg === null) {
+	if (msg.msg === undefined) {
 		//
 		console.log(`bar is not present`);
 		//STOP THE CURRENT SESSION/REVIEW TIME
 	}
-	if (typeof msg.msg == typeof {}) {
+	if (msg.msg === "Queue Name: CS - Source - 1") {
 		console.log("bar is present");
+		console.log("running: ", state.running);
 		//START/CONTINUE COUNTING SESSION/REVIEW TIME
+		if (state.running === false) {
+			state.interval = setInterval(startTime, 1000);
+		}
+		state.queueNamePresent = true;
+		console.log(state);
 	}
 });
+//console.log(1 == true); true

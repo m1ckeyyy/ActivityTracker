@@ -3,7 +3,7 @@
 	"name": "_My Extension",
 	"version": "1.0",
 	"permissions": ["storage", "activeTab", "scripting", "tabs"],
-	"host_permissions": ["https://www.youtube.com/*"],
+	"host_permissions": ["http://127.0.0.1:5500/*"],
 	"background": {
 		"service_worker": "background.js"
 	},
@@ -16,7 +16,7 @@
 	},
 	"content_scripts": [
 		{
-			"matches": ["https://www.youtube.com/*"],
+			"matches": ["http://127.0.0.1:5500/*"],
 			"js": ["content.js"]
 		}
 	],
